@@ -108,6 +108,11 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         bnNew = Params().ProofOfWorkLimit();
     }
 
+    if (pindexLast->nHeight >= 5000 && pindexLast->nHeight <= 5010) {
+        // reduce diff for stuck block mining
+        bnNew = uint256("0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    }
+
     return bnNew.GetCompact();
 }
 
