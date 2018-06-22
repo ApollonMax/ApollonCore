@@ -53,6 +53,7 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 // + Contains no strange transactions
 static Checkpoints::MapCheckpoints mapCheckpoints =
     boost::assign::map_list_of(0, uint256("0x001"));
+    
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
     1528662766, // * UNIX timestamp of last checkpoint block
@@ -127,7 +128,7 @@ public:
         nMaxMoneyOut = 21000000 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 5010;
+        nLastPOWBlock = 200;
         // nModifierUpdateBlock = 615800; // removed
         nZerocoinStartHeight = 2147483646; // too interwoven in the codebase for now.. just set it to int.max
         nZerocoinStartTime = 2147483646; // too interwoven in the codebase for now.. let's fix it with the other year 2038 problems

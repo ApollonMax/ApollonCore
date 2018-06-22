@@ -237,8 +237,9 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
         LogPrint("mnpayments", "Client not synced, skipping block payee checks\n");
         return true;
     }
-
-    const CTransaction& txNew = (nBlockHeight > Params().LAST_POW_BLOCK() ? block.vtx[1] : block.vtx[0]);
+    
+    // enable mining of 10 pow blocks to restore sync
+    const CTransaction& txNew = ((nBlockHeight > Params().LAST_POW_BLOCK() && (nBlockHeight < 5000 || nBlockHeight > 5010)) ? block.vtx[1] : block.vtx[0]);
 
     //check if it's a budget block
     if (IsSporkActive(SPORK_13_ENABLE_SUPERBLOCKS)) {
