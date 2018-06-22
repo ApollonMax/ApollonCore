@@ -546,12 +546,21 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                 LogPrintf("dbg miner fMintableCoins = %d\n", fMintableCoins);
             }
 
+            LogPrintf("dbg miner chainActive.Tip()->nHeight = %d\n", chainActive.Tip()->nHeight);
             if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
                 MilliSleep(5000);
                 continue;
             }
 
             while (vNodes.empty() || pwallet->IsLocked() || !fMintableCoins || nReserveBalance >= pwallet->GetBalance() || !masternodeSync.IsSynced()) {
+                LogPrintf("dbg miner waiting for ready state \n");
+                LogPrintf("dbg miner: vNodes.empty() = %d\n", vNodes.empty());
+                LogPrintf("dbg miner: pwallet->IsLocked() = %d\n", pwallet->IsLocked());
+                LogPrintf("dbg miner: !fMintableCoins = %d\n", !fMintableCoins);
+                LogPrintf("dbg miner: nReserveBalance >= pwallet->GetBalance() = %d\n", nReserveBalance >= pwallet->GetBalance());
+                LogPrintf("dbg miner: nReserveBalance = %d\n", nReserveBalance);
+                LogPrintf("dbg miner: pwallet->GetBalance() = %d\n",pwallet->GetBalance());
+                LogPrintf("dbg miner: !masternodeSync.IsSynced() = %d\n", !masternodeSync.IsSynced());
                 nLastCoinStakeSearchInterval = 0;
                 // Do a separate 1 minute check here to ensure fMintableCoins is updated
                 if (!fMintableCoins) {
@@ -563,6 +572,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     }
                 }
                 MilliSleep(5000);
+                LogPrintf("dbg miner fGenerateBitcoins = %d, fProofOfStake=%d \n", fGenerateBitcoins, fProofOfStake);
                 if (!fGenerateBitcoins && !fProofOfStake)
                     continue;
             }
