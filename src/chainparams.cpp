@@ -127,7 +127,7 @@ public:
         nMaxMoneyOut = 21000000 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 200;
+        nLastPOWBlock = 5010;
         // nModifierUpdateBlock = 615800; // removed
         nZerocoinStartHeight = 2147483646; // too interwoven in the codebase for now.. just set it to int.max
         nZerocoinStartTime = 2147483646; // too interwoven in the codebase for now.. let's fix it with the other year 2038 problems
