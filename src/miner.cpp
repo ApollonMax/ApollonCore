@@ -541,7 +541,9 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
             if ((GetTime() - nMintableLastCheck > 5 * 60)) // 5 minute check time
             {
                 nMintableLastCheck = GetTime();
+                LogPrintf("dbg miner nMintableLastCheck\n");
                 fMintableCoins = pwallet->MintableCoins();
+                LogPrintf("dbg miner fMintableCoins = %d\n", fMintableCoins);
             }
 
             if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
@@ -553,6 +555,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                 nLastCoinStakeSearchInterval = 0;
                 // Do a separate 1 minute check here to ensure fMintableCoins is updated
                 if (!fMintableCoins) {
+                    LogPrintf("dbg miner 1 minute mintable check\n");
                     if (GetTime() - nMintableLastCheck > 1 * 60) // 1 minute check time
                     {
                         nMintableLastCheck = GetTime();
@@ -564,8 +567,10 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     continue;
             }
 
+            LogPrintf("dbg miner mapHashedBlocks.count(chainActive.Tip()->nHeight) = %d\n", mapHashedBlocks.count(chainActive.Tip()->nHeight));
             if (mapHashedBlocks.count(chainActive.Tip()->nHeight)) //search our map of hashed blocks, see if bestblock has been hashed yet
             {
+                LogPrintf("dbg miner GetTime() - mapHashedBlocks[chainActive.Tip()->nHeight] = %d\n", GetTime() - mapHashedBlocks[chainActive.Tip()->nHeight]);
                 if (GetTime() - mapHashedBlocks[chainActive.Tip()->nHeight] < max(pwallet->nHashInterval, (unsigned int)1)) // wait half of the nHashDrift with max wait of 3 minutes
                 {
                     MilliSleep(5000);
