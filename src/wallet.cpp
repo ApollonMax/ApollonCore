@@ -2942,16 +2942,23 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
         return error("CreateCoinStake : invalid reserve balance amount");
 
+    LogPrintf("dbg miner CCS: nBalance = %d, nReserveBalance = %d\n", nBalance, nReserveBalance);
     if (nBalance > 0 && nBalance <= nReserveBalance)
         return false;
 
     // Get the list of stakable inputs
     std::list<std::unique_ptr<CStakeInput> > listInputs;
     if (!SelectStakeCoins(listInputs, nBalance - nReserveBalance))
+    {
+        LogPrintf("dbg miner CCS: !SelectStakeCoins(listInputs, nBalance - nReserveBalance)\n");
         return false;
+    }
 
     if (listInputs.empty())
+    {
+        LogPrintf("dbg miner CCS: listInputs.empty()\n");
         return false;
+    }
 
     if (GetAdjustedTime() - chainActive.Tip()->GetBlockTime() < 60)
         MilliSleep(10000);
@@ -2960,9 +2967,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     CScript scriptPubKeyKernel;
     bool fKernelFound = false;
     for (std::unique_ptr<CStakeInput>& stakeInput : listInputs) {
+        LogPrintf("dbg miner CCS: for input in listInputs\n");
+        
         // Make sure the wallet is unlocked and shutdown hasn't been requested
-        if (IsLocked() || ShutdownRequested())
+        if (IsLocked() || ShutdownRequested()) {
+            LogPrintf("dbg miner CCS: IsLocked() || ShutdownRequested()\n");
             return false;
+        }
 
         //make sure that enough time has elapsed between
         CBlockIndex* pindex = stakeInput->GetIndexFrom();
@@ -2977,6 +2988,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nTxNewTime = GetAdjustedTime();
 
         //iterates each utxo inside of CheckStakeKernelHash()
+        LogPrintf("dbg miner CCS: Stake() nBits = %d, block.GetBlockTime() = %d, nTxNewTime = %d, hashProofOfStake=%s\n", nBits, block.GetBlockTime(), nTxNewTime, hashProofOfStake.ToString().c_str());
+        
         if (Stake(stakeInput.get(), nBits, block.GetBlockTime(), nTxNewTime, hashProofOfStake)) {
             LOCK(cs_main);
             //Double check that this will pass time requirements

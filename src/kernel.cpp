@@ -268,6 +268,7 @@ bool stakeTargetHit(uint256 hashProofOfStake, int64_t nValueIn, uint256 bnTarget
     uint256 bnCoinDayWeight = uint256(nValueIn) / 100;
 
     // Now check if proof-of-stake hash meets target protocol
+    LogPrintf("dbg miner STH: \n hashProofOfStake = %s\n (bnCoinDayWeight * bnTargetPerCoinDay) = %s\n", hashProofOfStake.ToString().c_str(), (bnCoinDayWeight * bnTargetPerCoinDay).ToString().c_str());
     return hashProofOfStake < (bnCoinDayWeight * bnTargetPerCoinDay);
 }
 
@@ -284,6 +285,7 @@ bool CheckStake(const CDataStream& ssUniqueID, CAmount nValueIn, const uint64_t 
 
 bool Stake(CStakeInput* stakeInput, unsigned int nBits, unsigned int nTimeBlockFrom, unsigned int& nTimeTx, uint256& hashProofOfStake)
 {
+    LogPrintf("dbg miner Stake()\n");
     if (nTimeTx < nTimeBlockFrom)
         return error("CheckStakeKernelHash() : nTime violation");
 
@@ -317,7 +319,10 @@ bool Stake(CStakeInput* stakeInput, unsigned int nBits, unsigned int nTimeBlockF
 
         // if stake hash does not meet the target then continue to next iteration
         if (!CheckStake(ssUniqueID, nValueIn, nStakeModifier, bnTargetPerCoinDay, nTimeBlockFrom, nTryTime, hashProofOfStake))
+        {
+            LogPrintf("dbg miner Stake() !CheckStake()\n");
             continue;
+        }
 
         fSuccess = true; // if we make it this far then we have successfully created a stake hash
         //LogPrintf("%s: hashproof=%s\n", __func__, hashProofOfStake.GetHex());

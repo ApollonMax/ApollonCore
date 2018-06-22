@@ -157,7 +157,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         }
 
         if (!fStakeFound){
-            LogPrinf("dbg miner CNB: !stakeFound\n");
+            LogPrintf("dbg miner CNB: !stakeFound\n");
             return NULL;
         }
     }
