@@ -132,7 +132,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
 
     // ppcoin: if coinstake available add coinstake tx
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // only initialized at startup
-
+    LogPrintf("dbg miner CNB: fProofOfStake=%d\n", fProofOfStake);
     if (fProofOfStake) {
         boost::this_thread::interruption_point();
         pblock->nTime = GetAdjustedTime();
@@ -141,9 +141,12 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         CMutableTransaction txCoinStake;
         int64_t nSearchTime = pblock->nTime; // search to current time
         bool fStakeFound = false;
+        LogPrintf("dbg miner CNB: nSearchTime=%d, nLastCoinStakeSearchTime=%d\n", nSearchTime, nLastCoinStakeSearchTime);
+        
         if (nSearchTime >= nLastCoinStakeSearchTime) {
             unsigned int nTxNewTime = 0;
             if (pwallet->CreateCoinStake(*pwallet, pblock->nBits, nSearchTime - nLastCoinStakeSearchTime, txCoinStake, nTxNewTime)) {
+                LogPrintf("dbg miner CNB: CreateCoinStake()\n");
                 pblock->nTime = nTxNewTime;
                 pblock->vtx[0].vout[0].SetEmpty();
                 pblock->vtx.push_back(CTransaction(txCoinStake));
@@ -153,8 +156,10 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             nLastCoinStakeSearchTime = nSearchTime;
         }
 
-        if (!fStakeFound)
+        if (!fStakeFound){
+            LogPrinf("dbg miner CNB: !stakeFound\n");
             return NULL;
+        }
     }
 
     // Largest block you're willing to create:
@@ -474,8 +479,10 @@ int64_t nHPSTimerStart = 0;
 CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, CWallet* pwallet, bool fProofOfStake)
 {
     CPubKey pubkey;
-    if (!reservekey.GetReservedKey(pubkey))
+    if (!reservekey.GetReservedKey(pubkey)){
+        LogPrintf("!reservekey.GetReservedKey(pubkey)\n", !reservekey.GetReservedKey(pubkey));
         return NULL;
+    }
 
     CScript scriptPubKey = CScript() << ToByteVector(pubkey) << OP_CHECKSIG;
     return CreateNewBlock(scriptPubKey, pwallet, fProofOfStake);
@@ -592,12 +599,16 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
         //
         // Create new block
         //
+        LogPrintf("Create new block - fProofOfStake=%d\n", fProofOfStake);
         unsigned int nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
         CBlockIndex* pindexPrev = chainActive.Tip();
+        
+        LogPrintf("!pindexPrev = %d\n", pindexPrev);
         if (!pindexPrev)
             continue;
 
         unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockWithKey(reservekey, pwallet, fProofOfStake));
+        LogPrintf("!pblocktemplate.get() = %d\n", !pblocktemplate.get());
         if (!pblocktemplate.get())
             continue;
 
